@@ -77,8 +77,7 @@ Aby uruchomić projekt na swoim komputerze, postępuj zgodnie z poniższymi inst
 
 1. **Sklonuj repozytorium:**
    ```bash
-   git clone [https://github.com/tostrowski8080/ProjektNet.git](https://github.com/tostrowski8080/ProjektNet.git)
-   cd ProjektNet/WorkshopManager
+   git clone https://github.com/tostrowski8080/ProjektNet.git
    ```
 
 2. **Skonfiguruj bazę danych:**
