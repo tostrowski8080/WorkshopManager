@@ -1,74 +1,100 @@
-# ProjektNet - WorkshopManager
+# WorkshopManager (ProjektNet)
 
-Aplikacja webowa Asp.NET Core do zarządzania warsztatem samochodwym.
-Adres github: https://github.com/tostrowski8080/ProjektNet
+Aplikacja webowa zbudowana w technologii **ASP.NET Core**, służąca do zarządzania warsztatem samochodowym. Umożliwia koordynację pracy zespołu, zarządzanie zleceniami, częściami oraz relacjami z klientami.
 
-## Funkcje aplikacji
+## Wykorzystane technologie
+- **Framework:** ASP.NET Core (MVC / Razor Pages)
+- **Mapowanie obiektów:** [Mapperly](https://mapperly.github.io/mapperly/)
+- **Generowanie dokumentów:** QuestPDF (raporty PDF)
+- **Procesy w tle:** Hosted Services / BackgroundService
+- **CI/CD:** GitHub Actions
 
-- Rejstracja i logowanie z podziałem na role
-- Blokada dostępu w zależności od roli
-- Tworzenie klientów, pojazdów, zleceń dla recepcjonisty
-- Zarządzanie przypisanymi zleceniami przez mechaników
-- Zarządzanie częściami przez pracowników - admin dodaje części do katalogu, recepcjonista zmienia ich ilość, mechanik używa je do czynności naprawczych
-- Możliwość połączenia klienta warsztatu do jego konta na stronie
-- Generowanie raportów PDF
-- Dodawanie zdjęć pojazdów przez użytkowników z połączonymi kontami
-- Dane są mapowane przez Mapperly
+## Funkcjonalności aplikacji
 
-## Role
+Aplikacja opiera się na architekturze ról, ograniczając dostęp do modułów w zależności od uprawnień zalogowanego użytkownika.
 
-- Klient - konto klienta warsztatu, powinien zostać przypisane przez pracownika do klienta z bazy danych
-    - Dodawanie zdjęć do swoich pojazdów
-    - Dodawanie komentarzy do zleceń
-- Recepcjonista - konto od zarządzania działaniem warsztatu
-    - Dodawanie Klientów
-    - Dodawanie Pojazdów do klientów
-    - Dodawanie Zleceń do pojazdów
-    - Przypisywanie Klientów z bazy danych do konta na stronie
-    - Modyfikowanie ilości części w składzie
-    - Generowanie raportu PDF z napraw klienta
-- Mechanik - konto dla mechaników zapisywania swoich działań
-    - Zmiana statusu zleceń przypisanych do mechanika
-    - Dodawanie czynności do zlecenia
-    - Dodawanie wymaganych części do czynności
-- Admin - konto z wszystkimi uprawnieniami
-    - Wszystkie uprawnienia innych ról
-    - Zmiana ról dla kont
-    - Dodawanie części do katalogu
-    - Generowanie miesięcznego PDF z napraw
+### System Ról i Uprawnień
+
+* **Klient** 
+    * Przeglądanie historii własnych napraw.
+    * Dodawanie zdjęć do swoich pojazdów.
+    * Dodawanie komentarzy do realizowanych zleceń.
+* **Recepcjonista**
+    * Rejestracja nowych klientów i dodawanie ich pojazdów.
+    * Tworzenie nowych zleceń naprawy.
+    * Łączenie fizycznych profili klientów z ich internetowymi kontami w aplikacji.
+    * Zarządzanie inwentarzem (aktualizacja stanów magazynowych części).
+    * Generowanie indywidualnych raportów PDF z historii napraw dla klientów.
+* **Mechanik**
+    * Przegląd i aktualizacja statusu przypisanych zleceń.
+    * Rejestrowanie wykonanych czynności naprawczych.
+    * Deklarowanie użytych części w ramach konkretnego zlecenia.
+* **Admin**
+    * Dostęp do wszystkich funkcji pozostałych ról.
+    * Zarządzanie kontami użytkowników i nadawanie im ról.
+    * Zarządzanie głównym katalogiem części (dodawanie nowych pozycji).
+    * Generowanie globalnych, miesięcznych raportów serwisowych PDF.
 
 ## Struktura projektu
 
-```
+Projekt zachowuje strukturę opartą o wzorce architektoniczne ASP.NET:
+
+```text
 /WorkshopManager
-├── Controllers/
-├── DTOs/
-├── Models/
-├── Services/
-├── Mappers/             // Mapperly mappery
-├── PdfRaports/          // klasy QuestPDF do generowania raportów
-├── Pages/               // Razor Pages do interakcji z funkcjonalnościami
-├── Views/
-├── wwwroot/
-│   └── uploads/         // zdjęcia pojazdów
-├── Data/
-├── Program.cs
+├── Controllers/         # Kontrolery obsługujące żądania i logikę biznesową
+├── DTOs/                # Obiekty transferu danych (Data Transfer Objects)
+├── Models/              # Modele domenowe i encje bazodanowe
+├── Services/            # Logika biznesowa i usługi (w tym Background Services)
+├── Mappers/             # Konfiguracje mapowań obiektów (Mapperly)
+├── PdfRaports/          # Klasy odpowiedzialne za generowanie dokumentów za pomocą QuestPDF
+├── Pages/               # Widoki Razor Pages dla dedykowanych funkcjonalności
+├── Views/               # Widoki Razor dla kontrolerów MVC
+├── wwwroot/             # Pliki statyczne
+│   └── uploads/         # Katalog przechowujący wgrane zdjęcia pojazdów
+├── Data/                # Kontekst bazy danych (DbContext)
+└── Program.cs           # Konfiguracja potoku aplikacji i wstrzykiwania zależności (DI)
 ```
 
-## BackgroundService - raporty e-mail
+## Usługi działające w tle (Background Services)
 
-Co godzine program wysyła raport e-mail na wskazany adres - można zmienić adres w klasie OpenOrderReportBackgroundService.cs
+Aplikacja posiada wbudowany system powiadomień. Wykorzystując `OpenOrderReportBackgroundService`, system automatycznie generuje i wysyła zbiorczy raport e-mail (np. podsumowanie otwartych zleceń) co określoną jednostkę czasu (co godzinę). 
+*(Uwaga: Adres docelowy e-mail można skonfigurować w systemie).*
 
-## Github Actions - CI/CD
+## CI/CD - GitHub Actions
 
-Repozytorium zawiera zautomatyzowany proces CI/CD za pomocą GitHub Actions.
+Repozytorium posiada w pełni zautomatyzowany potok CI/CD. Workflow uruchamia się automatycznie po każdym `push` lub włączeniu `pull request` do gałęzi `main`.
 
-Workflow wykonuje:
+Kroki potoku:
+1. `dotnet restore` – pobranie i przywrócenie wymaganych pakietów NuGet.
+2. `dotnet build` – kompilacja aplikacji z upewnieniem się, że kod jest wolny od błędów budowania.
+3. `dotnet test` – uruchomienie zestawu testów jednostkowych.
 
-1. `dotnet restore` – przywracanie zależności
-2. `dotnet build` – budowanie aplikacji
-3. `dotnet test` – uruchamianie testów jednostkowych
+---
 
-Uruchamia się automatycznie po push lub pull request do gałęzi main.
+## Uruchomienie lokalne
 
-Aby uruchomić lokalnie należy zaktualizować appsettings.json z własną lokalną bazą danych.
+Aby uruchomić projekt na swoim komputerze, postępuj zgodnie z poniższymi instrukcjami:
+
+1. **Sklonuj repozytorium:**
+   ```bash
+   git clone [https://github.com/tostrowski8080/ProjektNet.git](https://github.com/tostrowski8080/ProjektNet.git)
+   cd ProjektNet/WorkshopManager
+   ```
+
+2. **Skonfiguruj bazę danych:**
+   Zmień connection string w pliku `appsettings.json`, wskazując na swój lokalny serwer SQL:
+   ```json
+   "ConnectionStrings": {
+     "DefaultConnection": "Server=TWÓJ_SERWER;Database=WorkshopManagerDb;Trusted_Connection=True;MultipleActiveResultSets=true"
+   }
+   ```
+
+3. **Zastosuj migracje bazy danych:**
+   ```bash
+   dotnet ef database update
+   ```
+
+4. **Uruchom aplikację:**
+   ```bash
+   dotnet run
+   ```
