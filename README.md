@@ -1,99 +1,100 @@
 # WorkshopManager
 
-Aplikacja webowa zbudowana w technologii **ASP.NET Core**, służąca do zarządzania warsztatem samochodowym. Umożliwia koordynację pracy zespołu, zarządzanie zleceniami, częściami oraz relacjami z klientami.
+A web application built with **ASP.NET Core** for managing a car repair shop. It facilitates team coordination, repair order management, parts inventory tracking, and customer relations.
 
-## Wykorzystane technologie
+*(Note: While this documentation is in English, the application's user interface is primarily in Polish).*
+
+## Technologies Used
 - **Framework:** ASP.NET Core (MVC / Razor Pages)
-- **Mapowanie obiektów:** [Mapperly](https://mapperly.github.io/mapperly/)
-- **Generowanie dokumentów:** QuestPDF (raporty PDF)
-- **Procesy w tle:** Hosted Services / BackgroundService
+- **Object Mapping:** [Mapperly](https://mapperly.github.io/mapperly/)
+- **Document Generation:** QuestPDF (PDF reports)
+- **Background Processes:** Hosted Services / BackgroundService
 - **CI/CD:** GitHub Actions
 
-## Funkcjonalności aplikacji
+## Features
 
-Aplikacja opiera się na architekturze ról, ograniczając dostęp do modułów w zależności od uprawnień zalogowanego użytkownika.
+The application is built on a role-based architecture, restricting access to specific modules depending on the logged-in user's permissions.
 
-### System Ról i Uprawnień
+### Role & Permission System
 
-* **Klient** 
-    * Przeglądanie historii własnych napraw.
-    * Dodawanie zdjęć do swoich pojazdów.
-    * Dodawanie komentarzy do realizowanych zleceń.
-* **Recepcjonista**
-    * Rejestracja nowych klientów i dodawanie ich pojazdów.
-    * Tworzenie nowych zleceń naprawy.
-    * Łączenie fizycznych profili klientów z ich internetowymi kontami w aplikacji.
-    * Zarządzanie inwentarzem (aktualizacja stanów magazynowych części).
-    * Generowanie indywidualnych raportów PDF z historii napraw dla klientów.
-* **Mechanik**
-    * Przegląd i aktualizacja statusu przypisanych zleceń.
-    * Rejestrowanie wykonanych czynności naprawczych.
-    * Deklarowanie użytych części w ramach konkretnego zlecenia.
+* **Customer (Klient)** * View personal repair history.
+    * Upload photos of their vehicles.
+    * Add comments to ongoing repair orders.
+* **Receptionist (Recepcjonista)**
+    * Register new customers and add their vehicles to the system.
+    * Create new repair orders.
+    * Link physical customer profiles with their online application accounts.
+    * Manage inventory (update parts stock levels).
+    * Generate individual PDF repair history reports for customers.
+* **Mechanic (Mechanik)**
+    * View and update the status of assigned repair orders.
+    * Log performed repair tasks and services.
+    * Declare specific parts used for a repair order.
 * **Admin**
-    * Dostęp do wszystkich funkcji pozostałych ról.
-    * Zarządzanie kontami użytkowników i nadawanie im ról.
-    * Zarządzanie głównym katalogiem części (dodawanie nowych pozycji).
-    * Generowanie globalnych, miesięcznych raportów serwisowych PDF.
+    * Access to all features available to other roles.
+    * Manage user accounts and assign roles.
+    * Manage the main parts catalog (add new items to the database).
+    * Generate global, monthly PDF service reports.
 
-## Struktura projektu
+## Project Structure
 
-Projekt zachowuje strukturę opartą o wzorce architektoniczne ASP.NET:
+The project follows standard ASP.NET architectural patterns to maintain a clean codebase:
 
 ```text
 /WorkshopManager
-├── Controllers/         # Kontrolery obsługujące żądania i logikę biznesową
-├── DTOs/                # Obiekty transferu danych (Data Transfer Objects)
-├── Models/              # Modele domenowe i encje bazodanowe
-├── Services/            # Logika biznesowa i usługi (w tym Background Services)
-├── Mappers/             # Konfiguracje mapowań obiektów (Mapperly)
-├── PdfRaports/          # Klasy odpowiedzialne za generowanie dokumentów za pomocą QuestPDF
-├── Pages/               # Widoki Razor Pages dla dedykowanych funkcjonalności
-├── Views/               # Widoki Razor dla kontrolerów MVC
-├── wwwroot/             # Pliki statyczne
-│   └── uploads/         # Katalog przechowujący wgrane zdjęcia pojazdów
-├── Data/                # Kontekst bazy danych (DbContext)
-└── Program.cs           # Konfiguracja potoku aplikacji i wstrzykiwania zależności (DI)
+├── Controllers/         # Controllers handling requests and business logic
+├── DTOs/                # Data Transfer Objects
+├── Models/              # Domain models and database entities
+├── Services/            # Business logic and services (including Background Services)
+├── Mappers/             # Object mapping configurations (Mapperly)
+├── PdfRaports/          # Classes responsible for generating documents using QuestPDF
+├── Pages/               # Razor Pages views for dedicated features
+├── Views/               # Razor views for MVC controllers
+├── wwwroot/             # Static files (CSS, JS, images)
+│   └── uploads/         # Directory for storing uploaded vehicle photos
+├── Data/                # Database context (DbContext)
+└── Program.cs           # Application pipeline and Dependency Injection (DI) configuration
 ```
 
-## Usługi działające w tle (Background Services)
+## Background Services
 
-Aplikacja posiada wbudowany system powiadomień. Wykorzystując `OpenOrderReportBackgroundService`, system automatycznie generuje i wysyła zbiorczy raport e-mail (np. podsumowanie otwartych zleceń) co określoną jednostkę czasu (co godzinę). 
-*(Uwaga: Adres docelowy e-mail można skonfigurować w systemie).*
+The application features a built-in automated notification system. Utilizing the `OpenOrderReportBackgroundService`, the system automatically generates and sends an aggregated email report (e.g., a summary of all open repair orders) at a specified time interval (hourly). 
+*(Note: The target email address can be configured within the system settings).*
 
 ## CI/CD - GitHub Actions
 
-Repozytorium posiada w pełni zautomatyzowany potok CI/CD. Workflow uruchamia się automatycznie po każdym `push` lub włączeniu `pull request` do gałęzi `main`.
+The repository includes a fully automated CI/CD pipeline. The workflow triggers automatically on every `push` or `pull request` to the `main` branch.
 
-Kroki potoku:
-1. `dotnet restore` – pobranie i przywrócenie wymaganych pakietów NuGet.
-2. `dotnet build` – kompilacja aplikacji z upewnieniem się, że kod jest wolny od błędów budowania.
-3. `dotnet test` – uruchomienie zestawu testów jednostkowych.
+Pipeline steps:
+1. `dotnet restore` – Restores required NuGet packages.
+2. `dotnet build` – Compiles the application, ensuring the codebase is free of build errors.
+3. `dotnet test` – Runs the suite of unit tests to verify system integrity.
 
 ---
 
-## Uruchomienie lokalne
+## Local Setup
 
-Aby uruchomić projekt na swoim komputerze, postępuj zgodnie z poniższymi instrukcjami:
+To run the project on your local machine, follow the instructions below:
 
-1. **Sklonuj repozytorium:**
+1. **Clone the repository:**
    ```bash
    git clone https://github.com/tostrowski8080/ProjektNet.git
    ```
 
-2. **Skonfiguruj bazę danych:**
-   Zmień connection string w pliku `appsettings.json`, wskazując na swój lokalny serwer SQL:
+2. **Configure the database:**
+   Update the connection string in the `appsettings.json` file, pointing it to your local SQL server instance:
    ```json
    "ConnectionStrings": {
-     "DefaultConnection": "Server=TWÓJ_SERWER;Database=WorkshopManagerDb;Trusted_Connection=True;MultipleActiveResultSets=true"
+     "DefaultConnection": "Server=YOUR_SERVER;Database=WorkshopManagerDb;Trusted_Connection=True;MultipleActiveResultSets=true"
    }
    ```
 
-3. **Zastosuj migracje bazy danych:**
+3. **Apply database migrations:**
    ```bash
    dotnet ef database update
    ```
 
-4. **Uruchom aplikację:**
+4. **Run the application:**
    ```bash
    dotnet run
    ```
