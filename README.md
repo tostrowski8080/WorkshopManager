@@ -1,4 +1,4 @@
-# WorkshopManager (ProjektNet)
+# WorkshopManager
 
 Aplikacja webowa zbudowana w technologii **ASP.NET Core**, służąca do zarządzania warsztatem samochodowym. Umożliwia koordynację pracy zespołu, zarządzanie zleceniami, częściami oraz relacjami z klientami.
 
